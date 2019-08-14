@@ -29,12 +29,14 @@ logger.addHandler(console_handler)
 3. open cmd window execute related command(eg fab deploy-production dll 190806)
 '''
 
+
 def show_progress_bar(*args, **kwargs):
     pbar = tqdm.tqdm(*args, **kwargs)  # make a progressbar
     last = [0]  # last known iteration, start at 0
+
     def viewBar(transferred, to_be_transferred):
         pbar.total = int(to_be_transferred)
-        pbar.update(int(transferred- last[0]))  # update pbar with increment
+        pbar.update(int(transferred - last[0]))  # update pbar with increment
         last[0] = transferred  # update last known iteration
     return viewBar, pbar  # return callback, tqdmInstance
 
@@ -47,6 +49,7 @@ def progress_bar(transferred, toBeTransferred, suffix=''):
     bar = '#' * filled_len + '-' * (bar_len - filled_len)
     sys.stdout.write('[%s] %s%s ...%s\r' % (bar, percents, '%', suffix))
     sys.stdout.flush()
+
 
 '''
 file_type='web',only update web files, cmd command is 'fab deploy-production web package_name'
@@ -66,12 +69,14 @@ def deploy_production(c, file_type, package_name):
         logger.info('begin to upload file...')
         begin_time = time.time()
         cbk, pbar = show_progress_bar(ascii=True, unit='b', unit_scale=True)
-        result = conn.sftp().put("{0}{1}.zip".format( local_update_files_folder, package_name), "%s%s.zip"%(remote_update_files_folder,package_name), callback=cbk)
+        result = conn.sftp().put("{0}{1}.zip".format(local_update_files_folder, package_name), "%s%s.zip" % (
+            remote_update_files_folder, package_name), callback=cbk)
         pbar.close()
         # conn.sftp().put("{0}{1}.zip".format( local_update_files_folder, package_name), remote_update_files_folder + package_name + ".zip", callback=progress_bar)
         end_time = time.time()
         logger.info('file upload finished...')
-        logger.info("Uploaded {0}{1}.zip -> {2}{1}.zip".format(local_update_files_folder, package_name, remote_update_files_folder))
+        logger.info("Uploaded {0}{1}.zip -> {2}{1}.zip".format(
+            local_update_files_folder, package_name, remote_update_files_folder))
         logger.info("used {:.5}s".format(end_time - begin_time))
         time.sleep(1)
         logger.info('unzip the uploaded files...')
